@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Playlist Converter</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎶</text></svg>">
+    <style>
+        * {
+            font-family: system-ui;
+            font-size: 13pt;
+        }
+        form {
+            border: 2px dashed #ccc;
+            border-radius: 15px;
+            padding: 20px;
+            width: 500px;
+            margin: 30px auto;
+        }
+
+        form.highlight {
+            border-color: royalblue;
+        }
+
+        label {
+            font-weight: bold;
+            user-select: none;
+        }
+
+        label, select, input[type=file] {
+            width: 100%;
+        }
+
+        select, input[type=file] {
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+
+        .help {
+            font-family: cursive;
+            text-align: center;
+            margin-top: 5px;
+            margin-bottom: 30px;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <form>
+        <p class="help">Drag and drop your playlist here or click the button below.</p>
+
+        <label for="file-element">Playlist</label>
+        <input id="file-element" type="file" accept=".pls">
+
+        <label for="input-encoding">Input Encoding:</label>
+        <select id="input-encoding">
+            <option value="CP1250">Central European (Windows 1250)</option>
+            <option value="ISO-8859-2">Central European (ISO 8859-2)</option>
+            <option value="UTF-8">UTF-8</option>
+        </select>
+
+        <label for="output-newline">Output Newline:</label>
+        <select id="output-newline">
+            <option value="\r\n">Windows</option>
+            <option value="\n">Linux</option>
+            <option value="\r">macOS</option>
+        </select>
+    </form>
+    <script>
+        function readText(file, encoding) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.readAsText(file, encoding)
+                reader.onloadend = function() {
+                    resolve(reader.result)
+                }
+            })
+        }
+
+        function writeText(filename, text) {
+            const uri = encodeURIComponent(text)
+            const anchor = document.createElement("a")
+            anchor.setAttribute("href", `data:text/plain;charset=utf-8,${uri}`)
+            anchor.setAttribute("download", filename)
+            anchor.style.display = "none"
+            document.body.appendChild(anchor)
+            anchor.click()
+            document.body.removeChild(anchor)
+        }
+
+        function convert(text, newline) {
+            const mapping = {
+                "\\r\\n": "\r\n",
+                "\\r": "\r",
+                "\\n": "\n"
+            }
+            return text.split(/\r\n|\r|\n/g).map(parse).join(mapping[newline])
+        }
+
+        function parse(line) {
+            const matched = line.match(/(File\d+=)(.*)/i)
+            if (matched) {
+                const [_, prefix, path] = matched
+                return prefix + path.split(/\\|\//).pop()
+            } else {
+                return line
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", event => {
+
+            const form = document.querySelector("form")
+            const fileElement = document.querySelector("#file-element")
+            const inputEncodingElement = document.querySelector("#input-encoding")
+            const outputNewlineElement = document.querySelector("#output-newline")
+
+            window.addEventListener("drop", event => event.preventDefault())
+            window.addEventListener("dragover", event => event.preventDefault())
+            window.addEventListener("dragenter", event => event.preventDefault())
+            window.addEventListener("dragleave", event => event.preventDefault())
+
+            form.addEventListener("dragenter", event => {
+                form.classList.add("highlight")
+            })
+
+            form.addEventListener("dragover", event => {
+                form.classList.add("highlight")
+            })
+
+            form.addEventListener("dragleave", event => {
+                form.classList.remove("highlight")
+            })
+
+            form.addEventListener("drop", event => {
+                form.classList.remove("highlight")
+                fileElement.files = event.dataTransfer.files
+                fileElement.dispatchEvent(new Event("change"))
+            })
+
+            fileElement.addEventListener("change", update)
+            inputEncodingElement.addEventListener("change", update)
+            outputNewlineElement.addEventListener("change", update)
+
+            async function update() {
+                if (fileElement.files.length > 0) {
+                    const file = fileElement.files[0]
+                    const inputEncoding = inputEncodingElement.value
+                    const outputNewline = outputNewlineElement.value
+                    const text = await readText(file, inputEncoding)
+                    const filename = `${file.name}-converted.pls`
+                    writeText(filename, convert(text, outputNewline))
+                }
+            }
+        })
+    </script>
+</body>
+</html>
