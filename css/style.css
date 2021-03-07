@@ -1,0 +1,37 @@
+* {
+    font-family: system-ui;
+    font-size: 13pt;
+}
+form {
+    border: 2px dashed #ccc;
+    border-radius: 15px;
+    padding: 20px;
+    width: 500px;
+    margin: 30px auto;
+}
+
+form.highlight {
+    border-color: royalblue;
+}
+
+label {
+    font-weight: bold;
+    user-select: none;
+}
+
+label, select, input[type=file] {
+    width: 100%;
+}
+
+select, input[type=file] {
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+.help {
+    font-family: cursive;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 30px;
+    user-select: none;
+}

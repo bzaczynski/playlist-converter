@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Playlist Converter</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎶</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <form>
+        <p class="help">Drag and drop your playlist here or click the button below.</p>
+
+        <label for="file-element">Playlist</label>
+        <input id="file-element" type="file" accept=".pls">
+
+        <label for="input-encoding">Input Encoding:</label>
+        <select id="input-encoding">
+            <option value="CP1250">Central European (Windows 1250)</option>
+            <option value="ISO-8859-2">Central European (ISO 8859-2)</option>
+            <option value="UTF-8">UTF-8</option>
+        </select>
+
+        <label for="output-newline">Output Newline:</label>
+        <select id="output-newline">
+            <option value="\r\n">Windows</option>
+            <option value="\n">Linux</option>
+            <option value="\r">macOS</option>
+        </select>
+    </form>
+    <script src="js/app.js"></script>
+    <script src="js/view.js"></script>
+</body>
+</html>
